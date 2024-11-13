@@ -9,7 +9,40 @@
 
 //a vertix contain way more data than position like color and so on...
 
+//--------------------------------------------------//
+// Specifies the location of the attribute in the shader.
+// This is usually set by `layout(location = index)` in the vertex shader or via glBindAttribLocation.
+// For example, if `index` is 0, this will refer to the attribute at location 0 in the shader.
+//GLuint index;
 
+// Specifies the number of components in the attribute (e.g., x, y for a 2D position).
+// Possible values are 1, 2, 3, or 4, depending on the data in your shader.
+// Example: For a vec3 attribute (e.g., position in 3D), you would use 3 here.
+//GLint size;
+
+// Specifies the data type of each component in the attribute.
+// Common types include:
+// - GL_FLOAT for floats
+// - GL_INT for integers
+// - GL_UNSIGNED_BYTE for unsigned bytes (e.g., color values).
+// This should match the data type used in the shader attribute.
+//GLenum type;
+
+// Specifies whether the data should be normalized (converted to a range between 0 and 1 or -1 and 1).
+// If GL_TRUE, data will be normalized. If GL_FALSE, data will be used as-is.
+// Normalization is often used for attributes like colors where you want byte data (0-255) scaled.
+//GLboolean normalized;
+
+// Specifies the byte offset between consecutive vertex attributes (stride).
+// If the attribute data is tightly packed, this can be set to 0, and OpenGL will calculate the stride automatically.
+// Otherwise, you can set it to the total size of the vertex structure to move from one vertex to the next.
+//GLsizei stride;
+
+// Specifies the offset in the buffer where the first component of this attribute is located.
+// This is often `0` if the attribute is at the start of the vertex structure.
+// For attributes further in the structure, set this to the offset in bytes.
+//const void* pointer;
+//--------------------------------------------------//
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -20,6 +53,7 @@
 #include "Renderer.h"
 #include "IndexBuffer.h"
 #include "VertexBuffer.h"
+#include "VertexArray.h"
 
 struct ShaderProgramSource {
 	std::string VertexSource;
@@ -164,16 +198,6 @@ int main() {
 
 
 
-	//init vertex array object//
-	//------------------------------//
-	unsigned int vao;
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
-	//------------------------------//
-	//end of the init//
-
-
-
 	{
 		//our vertex and indices//
 		//------------------------------//
@@ -193,16 +217,33 @@ int main() {
 
 
 
-		//init vertex buffer//
+
+		//init vertex array object//
 		//------------------------------//
+		//------------------------------//
+		//end of the init//
+
+
+		VertexArray va;
 		VertexBuffer vb(position, 4 * 2 * sizeof(float));
 
+		VertexBufferLayout layout;
+		layout.Push<float>(2);
+		va.AddBuffer(vb, layout);
+		IndexBuffer ib(indices, 6);
+
+
+
+		//init vertex buffer//
+		//------------------------------//
+		//VertexBuffer vb(position, 4 * 2 * sizeof(float));
+
 		//enable the first attribute 0:
-		glEnableVertexAttribArray(0);
+		//glEnableVertexAttribArray(0);
 
 		//determine the layout of the buffer that the gpu will read data from:
 		//when we sit the layout the the vertex array object will be linked to the current bound array buffer
-		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0);
+		//glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0);
 		//------------------------------//
 		//end of init vertex buffer//
 
@@ -213,7 +254,6 @@ int main() {
 
 		//index buffer object initilization:
 		//------------------------------//
-		IndexBuffer ib(indices, 6);
 		//------------------------------//
 		//end of the init//
 
@@ -289,7 +329,7 @@ int main() {
 			GlCall(glUniform4f(location, red, 0.3, 0.8, 1.0f));
 
 			//bind vao and ibo:
-			GlCall(glBindVertexArray(vao));
+			va.Bind();
 			ib.Bind();
 
 			//Draw the rectangle using indecies buffer and but 6 as the number of inecies not the vertex:
