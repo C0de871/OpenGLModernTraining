@@ -24,7 +24,7 @@
     <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\Download\OpenGl files\OpenGl Modern NGP\src\glad.c">
+    <ClCompile Include="D:\Download\glad\src\glad.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

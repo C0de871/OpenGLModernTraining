@@ -170,16 +170,20 @@ int main() {
 	glfwMakeContextCurrent(window);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
+	//sycronyize with v-sync:
+	glfwSwapInterval(1);
+	// 
 	// تحميل دوال OpenGL باستخدام GLAD
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
 		std::cerr << "Failed to initialize GLAD" << std::endl;
 		return -1;
 	}
 
-	//TO LEARN :
-	unsigned int VAO;
-	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO);
+
+	//vertex array object:
+	unsigned int vao;
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
 
 
 	float position[] = {
@@ -203,12 +207,13 @@ int main() {
 	glBindBuffer(GL_ARRAY_BUFFER, buffer);
 
 	//charge the buffer with data:
-	glBufferData(GL_ARRAY_BUFFER, 6*2 * sizeof(float), position, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, 4*2 * sizeof(float), position, GL_STATIC_DRAW);
 
 	//enable the first attribute 0:
 	glEnableVertexAttribArray(0);
 
 	//determine the layout of the buffer that the gpu will read data from:
+	//when we sit the layout the the vertex array object will be linked to the current bound array buffer
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0);
 
 	//index buffer object initilization:
@@ -216,7 +221,7 @@ int main() {
 	glGenBuffers(1, &ibo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(unsigned int), indices, GL_STATIC_DRAW);
-
+	
 	//read the shader code from the basic.shader file:
 	ShaderProgramSource source = ParseShader("res/shaders/basic.shader");
 
@@ -226,7 +231,21 @@ int main() {
 	//use the shader:
 	glUseProgram(shader);
 
+	//get the id of the uniform form the gpu to use it:
+	GlCall(int location = glGetUniformLocation(shader, "u_Color"));
+	ASSERT(location != -1);
 
+	//assign the color values to the uniform inside gpu memory:
+	GlCall(glUniform4f(location, 0.8f, 0.3f, 0.8f, 1.0f));
+
+	//unbound every buffer and shader:
+	GlCall(glBindVertexArray(0));
+	GlCall(glUseProgram(0));
+	GlCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
+	GlCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+
+	float red = 0.0f;
+	float delta = 0.05f;
 	// حلقة العرض الرئيسية
 	while (!glfwWindowShouldClose(window)) {
 		processInput(window);
@@ -237,8 +256,24 @@ int main() {
 		//Draw the rectangle without use indecies buffer and but 6 as the number of vertex:
 		//glDrawArrays(GL_TRIANGLES, 0, 6);
 
+		GlCall(glUseProgram(shader));
+
+		//animate the color of the rectangle:
+		GlCall(glUniform4f(location,red, 0.3, 0.8, 1.0f));
+		GlCall(glBindVertexArray(vao));
+		GlCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo));
+
 		//Draw the rectangle using indecies buffer and but 6 as the number of inecies not the vertex:
 		GlCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
+
+		if (red > 1.0f) {
+			delta = -0.005f;
+		}
+		else if (red < 0.0f) {
+			delta = 0.05f;
+		}
+
+		red += delta;
 
 		//swapt the previous and current frame:
 		glfwSwapBuffers(window);
