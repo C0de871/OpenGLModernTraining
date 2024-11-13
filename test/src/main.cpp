@@ -17,28 +17,9 @@
 #include <string>
 #include <fstream>
 #include <sstream>
-
-#define ASSERT(x) if (!(x)) __debugbreak();
-
-//error handling for opengl errors that can't be seen by the compiler:
-#define GlCall(x) GlClearError();\
-	x;\
-	ASSERT(GlLogCall(#x,__FILE__,__LINE__))
-
-//clear all previous errors:
-static void GlClearError() {
-	while (glGetError() != GL_NO_ERROR);
-}
-
-//log the error message to the consol 
-static bool GlLogCall(const char* function, const char* file, int line) {
-	while (GLenum error = glGetError()) {
-		std::cout << "[OpenGl Error code]: (" << error << ") \n" << "[the function that cause the error]: " << function << "\n[The path of the file that cause the error]: " << file << "\n[The line]: " << line << std::endl;
-		return false;
-	}
-	return true;
-}
-
+#include "Renderer.h"
+#include "IndexBuffer.h"
+#include "VertexBuffer.h"
 
 struct ShaderProgramSource {
 	std::string VertexSource;
@@ -80,7 +61,7 @@ static ShaderProgramSource ParseShader(const std::string& filepath) {
 			ss[(int)type] << line << '\n';
 		}
 	}
-	return { ss[0].str(),ss[1].str()};
+	return { ss[0].str(),ss[1].str() };
 }
 
 static unsigned int complieShader(unsigned int type, const std::string& source) {
@@ -172,7 +153,7 @@ int main() {
 
 	//sycronyize with v-sync:
 	glfwSwapInterval(1);
-	// 
+
 	// تحميل دوال OpenGL باستخدام GLAD
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
 		std::cerr << "Failed to initialize GLAD" << std::endl;
@@ -180,109 +161,158 @@ int main() {
 	}
 
 
-	//vertex array object:
+
+
+
+	//init vertex array object//
+	//------------------------------//
 	unsigned int vao;
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
+	//------------------------------//
+	//end of the init//
 
 
-	float position[] = {
-		-0.5f , -0.5f, // 0
-		 0.5f , -0.5f, // 1
-		 0.5f ,  0.5f, // 2
-		-0.5f ,  0.5f, // 3
-	};
 
-	unsigned int indices[] = {
-		0,1,2,
-		2,3,0,
-	};
+	{
+		//our vertex and indices//
+		//------------------------------//
+		float position[] = {
+			-0.5f , -0.5f, // 0
+			 0.5f , -0.5f, // 1
+			 0.5f ,  0.5f, // 2
+			-0.5f ,  0.5f, // 3
+		};
 
-	unsigned int buffer;
+		unsigned int indices[] = {
+			0,1,2,
+			2,3,0,
+		};
+		//------------------------------//
+		//end of the init//
 
-	//generate a buffer for the d.Suliman:
-	glGenBuffers(1, &buffer);
 
-	//select the working buffer or something like this:
-	glBindBuffer(GL_ARRAY_BUFFER, buffer);
 
-	//charge the buffer with data:
-	glBufferData(GL_ARRAY_BUFFER, 4*2 * sizeof(float), position, GL_STATIC_DRAW);
+		//init vertex buffer//
+		//------------------------------//
+		VertexBuffer vb(position, 4 * 2 * sizeof(float));
 
-	//enable the first attribute 0:
-	glEnableVertexAttribArray(0);
+		//enable the first attribute 0:
+		glEnableVertexAttribArray(0);
 
-	//determine the layout of the buffer that the gpu will read data from:
-	//when we sit the layout the the vertex array object will be linked to the current bound array buffer
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0);
+		//determine the layout of the buffer that the gpu will read data from:
+		//when we sit the layout the the vertex array object will be linked to the current bound array buffer
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0);
+		//------------------------------//
+		//end of init vertex buffer//
 
-	//index buffer object initilization:
-	unsigned int ibo;
-	glGenBuffers(1, &ibo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(unsigned int), indices, GL_STATIC_DRAW);
-	
-	//read the shader code from the basic.shader file:
-	ShaderProgramSource source = ParseShader("res/shaders/basic.shader");
 
-	//create the shader:
-	unsigned int shader = CreateShader(source.VertexSource, source.FragmentSource);
 
-	//use the shader:
-	glUseProgram(shader);
 
-	//get the id of the uniform form the gpu to use it:
-	GlCall(int location = glGetUniformLocation(shader, "u_Color"));
-	ASSERT(location != -1);
 
-	//assign the color values to the uniform inside gpu memory:
-	GlCall(glUniform4f(location, 0.8f, 0.3f, 0.8f, 1.0f));
 
-	//unbound every buffer and shader:
-	GlCall(glBindVertexArray(0));
-	GlCall(glUseProgram(0));
-	GlCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
-	GlCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+		//index buffer object initilization:
+		//------------------------------//
+		IndexBuffer ib(indices, 6);
+		//------------------------------//
+		//end of the init//
 
-	float red = 0.0f;
-	float delta = 0.05f;
-	// حلقة العرض الرئيسية
-	while (!glfwWindowShouldClose(window)) {
-		processInput(window);
 
-		//clear the previous frame for a clean screen for drawing:
-		glClear(GL_COLOR_BUFFER_BIT);
 
-		//Draw the rectangle without use indecies buffer and but 6 as the number of vertex:
-		//glDrawArrays(GL_TRIANGLES, 0, 6);
 
-		GlCall(glUseProgram(shader));
 
-		//animate the color of the rectangle:
-		GlCall(glUniform4f(location,red, 0.3, 0.8, 1.0f));
-		GlCall(glBindVertexArray(vao));
-		GlCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo));
 
-		//Draw the rectangle using indecies buffer and but 6 as the number of inecies not the vertex:
-		GlCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
 
-		if (red > 1.0f) {
-			delta = -0.005f;
+		//init shaders//
+		//------------------------------//
+		//read the shader code from the basic.shader file:
+		ShaderProgramSource source = ParseShader("res/shaders/basic.shader");
+
+		//create the shader:
+		unsigned int shader = CreateShader(source.VertexSource, source.FragmentSource);
+
+		//use the shader:
+		glUseProgram(shader);
+		//------------------------------//
+		//end of init//
+
+
+
+
+
+
+		//declare the color//
+		//------------------------------//
+		//get the id of the uniform form the gpu to use it:
+		GlCall(int location = glGetUniformLocation(shader, "u_Color"));
+		ASSERT(location != -1);
+
+		//assign the color values to the uniform inside gpu memory:
+		GlCall(glUniform4f(location, 0.8f, 0.3f, 0.8f, 1.0f));
+		//------------------------------//
+		//end of declaration//
+
+
+
+
+
+
+
+
+		//unbound every buffer and shader:
+		GlCall(glBindVertexArray(0));
+		GlCall(glUseProgram(0));
+		GlCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
+		GlCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+
+		float red = 0.0f;
+		float delta = 0.05f;
+
+
+
+
+
+		// حلقة العرض الرئيسية
+		while (!glfwWindowShouldClose(window)) {
+			processInput(window);
+
+			//clear the previous frame for a clean screen for drawing:
+			glClear(GL_COLOR_BUFFER_BIT);
+
+			//Draw the rectangle without use indecies buffer and but 6 as the number of vertex:
+			//glDrawArrays(GL_TRIANGLES, 0, 6);
+
+			//use the shader:
+			GlCall(glUseProgram(shader));
+
+			//animate the color of the rectangle:
+			GlCall(glUniform4f(location, red, 0.3, 0.8, 1.0f));
+
+			//bind vao and ibo:
+			GlCall(glBindVertexArray(vao));
+			ib.Bind();
+
+			//Draw the rectangle using indecies buffer and but 6 as the number of inecies not the vertex:
+			GlCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
+
+			if (red > 1.0f) {
+				delta = -0.05f;
+			}
+			else if (red < 0.0f) {
+				delta = 0.05f;
+			}
+
+			red += delta;
+
+			//swap the previous and current frame:
+			glfwSwapBuffers(window);
+
+			//for process keyboard and other event without stop the program:
+			glfwPollEvents();
 		}
-		else if (red < 0.0f) {
-			delta = 0.05f;
-		}
 
-		red += delta;
-
-		//swapt the previous and current frame:
-		glfwSwapBuffers(window);
-
-		//for process keyboard and other event without stop the program:
-		glfwPollEvents();
+		glDeleteProgram(shader);
 	}
-
-	glDeleteProgram(shader);
 
 	//free up resourses and close all related windows and do some cleanup:
 	glfwTerminate();

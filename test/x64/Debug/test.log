@@ -1,4 +1,4 @@
 ﻿  main.cpp
-C:\Users\moham\source\repos\test\test\src\main.cpp(262,3): warning C4305: 'argument': truncation from 'double' to 'GLfloat'
+C:\Users\moham\source\repos\test\test\src\main.cpp(289,4): warning C4305: 'argument': truncation from 'double' to 'GLfloat'
 LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
   test.vcxproj -> C:\Users\moham\source\repos\test\x64\Debug\test.exe
