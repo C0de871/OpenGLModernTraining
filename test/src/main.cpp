@@ -151,13 +151,15 @@ int main() {
 		auto lastTime = std::chrono::high_resolution_clock::now();
 
 		bool first = true;
+		Renderer renderer;
+
 
 		// حلقة العرض الرئيسية
 		// Main rendering loop
 		while (!glfwWindowShouldClose(window)) {
 			processInput(window);
 
-			glClear(GL_COLOR_BUFFER_BIT);
+			renderer.Clear();
 
 			// Calculate deltaTime
 			auto currentTime = std::chrono::high_resolution_clock::now();
@@ -185,10 +187,7 @@ int main() {
 			shader.Bind();
 			shader.SetUniform4f("u_Color", red, 0.3f, 0.8f, 1.0f);
 
-			// Draw call
-			va.Bind();
-			ib.Bind();
-			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+			renderer.Draw(va,ib,shader);
 
 			glfwSwapBuffers(window);
 			glfwPollEvents();

@@ -1,9 +1,9 @@
 #include "Shader.h"
 #include <glad/glad.h>
-#include "Renderer.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include "GLErrorManager.h"
 
 
 Shader::Shader(const std::string& filepath): m_FilePath(filepath), m_RendererID(0)
