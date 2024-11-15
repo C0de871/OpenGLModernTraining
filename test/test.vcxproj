@@ -132,18 +132,19 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="D:\Download\glad\src\glad.c" />
+    <ClCompile Include="src\GLErrorManager.cpp" />
     <ClCompile Include="src\IndexBuffer.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Renderer.cpp" />
     <ClCompile Include="src\Shader.cpp" />
     <ClCompile Include="src\VertexArray.cpp" />
     <ClCompile Include="src\VertexBuffer.cpp" />
-    <ClCompile Include="src\VertexBufferLayout.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\basic.shader" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\GLErrorManager.h" />
     <ClInclude Include="src\IndexBuffer.h" />
     <ClInclude Include="src\Renderer.h" />
     <ClInclude Include="src\Shader.h" />

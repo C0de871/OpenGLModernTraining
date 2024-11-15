@@ -1,7 +1,24 @@
-﻿  IndexBuffer.cpp
-  Shader.cpp
-  main.cpp
-  Generating Code...
+﻿  main.cpp
+C:\Users\moham\source\repos\test\test\src\Renderer.h(2,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  (compiling source file 'src/main.cpp')
+  
+C:\Users\moham\source\repos\test\test\src\Renderer.h(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  (compiling source file 'src/main.cpp')
+  
+C:\Users\moham\source\repos\test\test\src\Renderer.h(4,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  (compiling source file 'src/main.cpp')
+  
 C:\Users\moham\source\repos\test\test\src\main.cpp(58,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  Renderer.cpp
+C:\Users\moham\source\repos\test\test\src\Renderer.h(2,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  (compiling source file 'src/Renderer.cpp')
+  
+C:\Users\moham\source\repos\test\test\src\Renderer.h(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  (compiling source file 'src/Renderer.cpp')
+  
+C:\Users\moham\source\repos\test\test\src\Renderer.h(4,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  (compiling source file 'src/Renderer.cpp')
+  
+  Generating Code...
 LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
   test.vcxproj -> C:\Users\moham\source\repos\test\x64\Debug\test.exe
